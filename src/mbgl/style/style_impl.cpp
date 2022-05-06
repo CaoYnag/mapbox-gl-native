@@ -177,6 +177,10 @@ std::unique_ptr<Source> Style::Impl::removeSource(const std::string& id) {
     return source;
 }
 
+void Style::Impl::removeSources(){
+    sources.clear();
+}
+
 std::vector<Layer*> Style::Impl::getLayers() {
     return layers.getWrappers();
 }

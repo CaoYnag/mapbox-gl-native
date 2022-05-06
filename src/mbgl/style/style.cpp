@@ -104,6 +104,12 @@ std::unique_ptr<Source> Style::removeSource(const std::string& sourceID) {
     return impl->removeSource(sourceID);
 }
 
+void Style::removeSources(){
+    impl->mutated = true;
+    impl->removeSources();
+}
+
+
 std::vector<Layer*> Style::getLayers() {
     impl->mutated = true;
     return impl->getLayers();

@@ -59,6 +59,7 @@ public:
 
     void addSource(std::unique_ptr<Source>);
     std::unique_ptr<Source> removeSource(const std::string& sourceID);
+    void removeSources();
 
     // Layers
     std::vector<      Layer*> getLayers();
