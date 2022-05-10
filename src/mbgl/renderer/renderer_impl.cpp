@@ -47,6 +47,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
     const auto& renderTreeParameters = renderTree.getParameters();
 
     if (!staticData) {
+        Log::Info(Event::General, "empty static data");
         staticData = std::make_unique<RenderStaticData>(backend.getContext(), pixelRatio);
     }
     staticData->has3D = renderTreeParameters.has3D;

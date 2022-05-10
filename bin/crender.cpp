@@ -33,7 +33,7 @@ std::string read_file(const std::string& path)
     return ret;
 }
 
-int render(long z, double x, double y, uint32_t size, const std::string& style, const std::string& tilejson, const std::string& output)
+int render(long z, double x, double y, uint32_t size, const std::string& style, const std::string& output)
 {
     using namespace mbgl;
 
@@ -46,12 +46,12 @@ int render(long z, double x, double y, uint32_t size, const std::string& style, 
 
 
     map.getStyle().loadJSON(read_file(style));
-    {
+    /*{
         // remove all exists source
         map.getStyle().removeSources();
         const char* SOURCE_NAME = "source";
         auto source = std::make_unique<mbgl::style::VectorSource>(SOURCE_NAME);
-    }
+    }*/
     map.jumpTo(CameraOptions()
                    .withCenter(LatLng { y, x })
                    .withZoom(z));
@@ -60,7 +60,9 @@ int render(long z, double x, double y, uint32_t size, const std::string& style, 
 
     try {
         std::ofstream out(output, std::ios::binary);
+        std::cout << "before render" << std::endl;
         auto rslt = frontend.render(map);
+        std::cout << "end render" << std::endl;
         out << encodePNG(rslt.image);
         out.close();
     } catch(std::exception& e) {
@@ -106,5 +108,5 @@ int main(int argc, char *argv[]) {
     std::string style = styleValue ? args::get(styleValue) : "style.json";
     std::string tilejson = sourceValue ? args::get(sourceValue) : "tile.json";
 
-    return render(zoom, lon, lat, size, style, tilejson, output);
+    return render(zoom, lon, lat, size, style, output);
 }
