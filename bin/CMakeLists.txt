@@ -31,6 +31,7 @@ target_link_libraries(
     mbgl-render
     PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
 )
+
 add_executable(
     crender
     ${PROJECT_SOURCE_DIR}/bin/crender.cpp

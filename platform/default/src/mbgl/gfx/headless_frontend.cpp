@@ -39,11 +39,14 @@ HeadlessFrontend::HeadlessFrontend(Size size_,
               // Copy the shared pointer here so that the parameters aren't destroyed while `render(...)` is
               // still using them.
               auto updateParameters_ = updateParameters;
+              printf("in async invalidate %d\n", updateParameters->stillImageRequest);
               renderer->render(updateParameters_);
 
               auto endTime = mbgl::util::MonotonicTimer::now();
               frameTime = (endTime - startTime).count();
+              printf("task done, cost %.3lf\n", frameTime.load());
           }
+          printf("async task end\n");
       }),
       renderer(std::make_unique<Renderer>(*getBackend(), pixelRatio, localFontFamily)) {}
 

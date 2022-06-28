@@ -413,6 +413,7 @@ HTTPFileSource::HTTPFileSource()
 HTTPFileSource::~HTTPFileSource() = default;
 
 std::unique_ptr<AsyncRequest> HTTPFileSource::request(const Resource& resource, Callback callback) {
+    printf("requesting %d[%s] via [%d] http_file_source\n", resource.kind, resource.url.c_str(), (int)resource.loadingMethod);
     return std::make_unique<HTTPRequest>(impl.get(), resource, callback);
 }
 

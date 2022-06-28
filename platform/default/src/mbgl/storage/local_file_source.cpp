@@ -32,6 +32,7 @@ public:
 
         // Cut off the protocol and prefix with path.
         const auto path = mbgl::util::percentDecode(url.substr(std::char_traits<char>::length(util::FILE_PROTOCOL)));
+        printf("requesting %s in local_file_source.\n", url.c_str());
         requestLocalFile(path, req);
     }
 };

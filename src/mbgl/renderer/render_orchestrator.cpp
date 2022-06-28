@@ -137,6 +137,7 @@ void RenderOrchestrator::setObserver(RendererObserver* observer_) {
 
 std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
     const std::shared_ptr<UpdateParameters>& updateParameters) {
+    printf("begin create render tree.\n");
     const bool isMapModeContinuous = updateParameters->mode == MapMode::Continuous;
     if (!isMapModeContinuous) {
         // Reset zoom history state.
@@ -173,7 +174,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
                                         *imageManager,
                                         *glyphManager,
                                         updateParameters->prefetchZoomDelta};
-
+    printf((std::string("glyphurl:") + updateParameters->glyphURL + "\n").c_str());
     glyphManager->setURL(updateParameters->glyphURL);
 
     // Update light.
@@ -203,6 +204,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
     // Add added images to sprite atlas.
     for (const auto& entry : imageDiff.added) {
         imageManager->addImage(entry.second);
+        printf((std::string("added image:") + entry.first + "\n").c_str());
     }
 
     // Update changed images.
@@ -230,6 +232,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
         auto renderLayer = LayerManager::get()->createRenderLayer(entry.second);
         renderLayer->transition(transitionParameters);
         renderLayers.emplace(entry.first, std::move(renderLayer));
+        printf((std::string("added layer:") + entry.first + "\n").c_str());
     }
 
     // Update render layers for changed layers.
@@ -279,6 +282,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
         std::unique_ptr<RenderSource> renderSource = RenderSource::create(entry.second);
         renderSource->setObserver(this);
         renderSources.emplace(entry.first, std::move(renderSource));
+        printf((std::string("added source:") + entry.first + "\n").c_str());
     }
     transformState = updateParameters->transformState;
     const bool tiltedView = transformState.getPitch() != 0.0f;
@@ -351,6 +355,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
     }
 
     renderTreeParameters->loaded = updateParameters->styleLoaded && isLoaded();
+    printf("continuous: %d, style: %d, loaded: %d\n", isMapModeContinuous, updateParameters->styleLoaded, isLoaded());
     if (!isMapModeContinuous && !renderTreeParameters->loaded) {
         return nullptr;
     }
@@ -358,10 +363,12 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
     // Prepare. Update all matrices and generate data that we should upload to the GPU.
     for (const auto& entry : renderSources) {
         if (entry.second->isEnabled()) {
+        printf((std::string("prepare source:") + entry.first + "\n").c_str());
             entry.second->prepare(
                 {renderTreeParameters->transformParams, updateParameters->debugOptions, *imageManager});
         }
     }
+    printf("end prepare render source\n");
 
     auto opaquePassCutOffEstimation = layerRenderItems.size();
     for (auto& renderItem : layerRenderItems) {
@@ -449,6 +456,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
         }
     }
 
+    printf("end create render tree\n");
     return std::make_unique<RenderTreeImpl>(std::move(renderTreeParameters),
                                             std::move(layerRenderItems),
                                             std::move(sourceRenderItems),
@@ -694,6 +702,7 @@ bool RenderOrchestrator::hasTransitions(TimePoint timePoint) const {
 bool RenderOrchestrator::isLoaded() const {
     for (const auto& entry: renderSources) {
         if (!entry.second->isLoaded()) {
+            printf("%s not loaded\n", entry.first.c_str());
             return false;
         }
     }

@@ -65,3 +65,6 @@ mapbox-gl-native.code-workspace
 /scripts/generate-file-lists.list
 /scripts/generate-shaders.list
 /scripts/generate-style-code.list
+
+# clang cache
+.cache

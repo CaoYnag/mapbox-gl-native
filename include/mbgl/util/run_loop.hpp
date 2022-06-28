@@ -101,6 +101,7 @@ private:
         } else {
             defaultQueue.emplace(std::move(task));
         }
+        printf("%lx get new task.\n", (long)this);
         wake();
 
         if (platformCallback) {
@@ -122,6 +123,7 @@ private:
                 break;
             }
             lock.unlock();
+            printf("%lx processing task.\n", (long)this);
             (*task)();
             task.reset();
             lock.lock();

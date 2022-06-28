@@ -49,3 +49,9 @@
 [submodule "vendor/mapbox-gl-native-curl"]
 	path = vendor/mapbox-gl-native-curl
 	url = https://github.com/mapbox/mapbox-gl-native-curl.git
+[submodule "vendor/freetype"]
+	path = vendor/freetype
+	url = git@github.com:freetype/freetype.git
+[submodule "vendor/sdf-glyph-foundry"]
+	path = vendor/sdf-glyph-foundry
+	url = git@github.com:CaoYnag/sdf-glyph-foundry.git

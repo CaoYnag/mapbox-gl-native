@@ -17,6 +17,7 @@ endif()
 
 option(MBGL_WITH_CORE_ONLY "Build only the core bits, no platform code" OFF)
 option(MBGL_WITH_COVERAGE "Enable code coverage collection" OFF)
+option(MBGL_WITH_DEBUG "Enable debug" ON)
 option(MBGL_WITH_QT "Build Mapbox GL Qt bindings" OFF)
 option(MBGL_WITH_SANITIZER "Use [address|thread|undefined] here" OFF)
 option(MBGL_WITH_RTTI "Compile with runtime type information" OFF)
@@ -32,6 +33,7 @@ set(UBSAN_BLACKLIST ${PROJECT_SOURCE_DIR}/scripts/ubsan.blacklist)
 target_compile_options(
     mbgl-compiler-options
     INTERFACE
+        $<$<BOOL:${MBGL_WITH_DEBUG}>:-g>
         $<$<BOOL:${MBGL_WITH_COVERAGE}>:--coverage>
         $<$<BOOL:${MBGL_WITH_SANITIZER}>:-DSANITIZE>
         $<$<BOOL:${MBGL_WITH_SANITIZER}>:-fno-omit-frame-pointer>
@@ -73,7 +75,7 @@ target_link_libraries(
 
 cmake_policy(SET CMP0063 NEW)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_C_EXTENSIONS OFF)
@@ -971,6 +973,7 @@ include(${PROJECT_SOURCE_DIR}/vendor/protozero.cmake)
 include(${PROJECT_SOURCE_DIR}/vendor/unique_resource.cmake)
 include(${PROJECT_SOURCE_DIR}/vendor/vector-tile.cmake)
 include(${PROJECT_SOURCE_DIR}/vendor/wagyu.cmake)
+include(${PROJECT_SOURCE_DIR}/vendor/sdf.cmake)
 
 target_link_libraries(
     mbgl-core
@@ -991,6 +994,7 @@ target_link_libraries(
         mbgl-vendor-unique_resource
         mbgl-vendor-vector-tile
         mbgl-vendor-wagyu
+        mbgl-vendor-sdf
     PUBLIC
         Mapbox::Base
         Mapbox::Base::Extras::expected-lite

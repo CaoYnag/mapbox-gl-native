@@ -39,6 +39,7 @@ void Renderer::Impl::setObserver(RendererObserver* observer_) {
 }
 
 void Renderer::Impl::render(const RenderTree& renderTree) {
+    Log::Info(Event::General, "begin real render");
     if (renderState == RenderState::Never) {
         observer->onWillStartRenderingMap();
     }
@@ -97,6 +98,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
     // Renders any 3D layers bottom-to-top to unique FBOs with texture attachments, but share the same
     // depth rbo between them.
     if (parameters.staticData.has3D) {
+        Log::Info(Event::General, "drawing 3d");
         parameters.staticData.backendSize = parameters.backend.getDefaultRenderable().getSize();
 
         const auto debugGroup(parameters.encoder->createDebugGroup("3d"));
@@ -130,6 +132,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
         } else if (!backend.contextIsShared()) {
             color = renderTreeParameters.backgroundColor;
         }
+        Log::Info(Event::General, std::string("backgroud: ") + color->stringify());
         parameters.renderPass = parameters.encoder->createRenderPass("main buffer", { parameters.backend.getDefaultRenderable(), color, 1, 0 });
     }
 
@@ -149,6 +152,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
             const RenderItem& renderItem = it->get();
             if (renderItem.hasRenderPass(parameters.pass)) {
                 const auto layerDebugGroup(parameters.renderPass->createDebugGroup(renderItem.getName().c_str()));
+                Log::Info(Event::General, std::string("opaque: ") + renderItem.getName());
                 renderItem.render(parameters);
             }
         }
@@ -166,10 +170,11 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
             const RenderItem& renderItem = it->get();
             if (renderItem.hasRenderPass(parameters.pass)) {
                 const auto layerDebugGroup(parameters.renderPass->createDebugGroup(renderItem.getName().c_str()));
+                Log::Info(Event::General, std::string("translucent: ") + renderItem.getName());
                 renderItem.render(parameters);
             }
         }
-    }
+}
 
     // - DEBUG PASS --------------------------------------------------------------------------------
     // Renders debug overlays.
@@ -180,7 +185,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
         // This guarantees that we have at least one function per tile called.
         // When only rendering layers via the stylesheet, it's possible that we don't
         // ever visit a tile during rendering.
-        for (const RenderItem& renderItem : sourceRenderItems) {           
+        for (const RenderItem& renderItem : sourceRenderItems) {
             renderItem.render(parameters);
         }
     }
