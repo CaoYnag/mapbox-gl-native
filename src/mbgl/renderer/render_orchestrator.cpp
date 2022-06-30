@@ -302,7 +302,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
     if (!sourceImpls->empty()) {
         filteredLayersForSource.reserve(layerImpls->size());
     }
-
+    printf("--before source update\n");
     // Update all sources and initialize renderItems.
     for (const auto& sourceImpl : *sourceImpls) {
         RenderSource* source = renderSources.at(sourceImpl->id).get();
@@ -353,6 +353,7 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
                        tileParameters);
         filteredLayersForSource.clear();
     }
+    printf("--after source update\n");
 
     renderTreeParameters->loaded = updateParameters->styleLoaded && isLoaded();
     printf("continuous: %d, style: %d, loaded: %d\n", isMapModeContinuous, updateParameters->styleLoaded, isLoaded());

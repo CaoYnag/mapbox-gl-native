@@ -42,6 +42,21 @@ target_link_libraries(
     PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
 )
 
+add_executable(
+    unpack_glyph_pbf
+    ${PROJECT_SOURCE_DIR}/bin/unpack_glyph_pbf.cpp
+)
+
+target_include_directories(
+    unpack_glyph_pbf
+    PRIVATE ${PROJECT_SOURCE_DIR}/src
+)
+
+target_link_libraries(
+    unpack_glyph_pbf
+    PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
+)
+
 install(TARGETS mbgl-offline mbgl-render RUNTIME DESTINATION bin)
 
 # FIXME: CI must have a valid token

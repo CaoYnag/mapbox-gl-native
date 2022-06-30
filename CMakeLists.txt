@@ -711,6 +711,7 @@ add_library(
     ${PROJECT_SOURCE_DIR}/src/mbgl/text/language_tag.cpp
     ${PROJECT_SOURCE_DIR}/src/mbgl/text/language_tag.hpp
     ${PROJECT_SOURCE_DIR}/src/mbgl/text/local_glyph_rasterizer.hpp
+    ${PROJECT_SOURCE_DIR}/src/mbgl/text/local_glyph_rasterizer.cpp
     ${PROJECT_SOURCE_DIR}/src/mbgl/text/placement.cpp
     ${PROJECT_SOURCE_DIR}/src/mbgl/text/placement.hpp
     ${PROJECT_SOURCE_DIR}/src/mbgl/text/quads.cpp
