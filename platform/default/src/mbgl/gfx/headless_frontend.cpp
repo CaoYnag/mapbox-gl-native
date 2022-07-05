@@ -11,17 +11,21 @@
 
 namespace mbgl {
 
+HeadlessFrontend::HeadlessFrontend(Size size_,
+                                   float pixelRatio_,
+                                   const optional<std::string>& localFontPath)
+    : HeadlessFrontend(size_, pixelRatio_, gfx::HeadlessBackend::SwapBehaviour::NoFlush, gfx::ContextMode::Unique, localFontPath) {}
 HeadlessFrontend::HeadlessFrontend(float pixelRatio_,
                                    gfx::HeadlessBackend::SwapBehaviour swapBehavior,
                                    const gfx::ContextMode contextMode,
-                                   const optional<std::string>& localFontFamily)
-    : HeadlessFrontend({256, 256}, pixelRatio_, swapBehavior, contextMode, localFontFamily) {}
+                                   const optional<std::string>& localFontPath)
+    : HeadlessFrontend({256, 256}, pixelRatio_, swapBehavior, contextMode, localFontPath) {}
 
 HeadlessFrontend::HeadlessFrontend(Size size_,
                                    float pixelRatio_,
                                    gfx::HeadlessBackend::SwapBehaviour swapBehavior,
                                    const gfx::ContextMode contextMode,
-                                   const optional<std::string>& localFontFamily)
+                                   const optional<std::string>& localFontPath)
     : size(size_),
       pixelRatio(pixelRatio_),
       frameTime(0),
@@ -48,7 +52,7 @@ HeadlessFrontend::HeadlessFrontend(Size size_,
           }
           printf("async task end\n");
       }),
-      renderer(std::make_unique<Renderer>(*getBackend(), pixelRatio, localFontFamily)) {}
+      renderer(std::make_unique<Renderer>(*getBackend(), pixelRatio, localFontPath)) {}
 
 HeadlessFrontend::~HeadlessFrontend() = default;
 

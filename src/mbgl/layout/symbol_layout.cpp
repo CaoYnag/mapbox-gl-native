@@ -13,8 +13,11 @@
 #include <mbgl/util/platform.hpp>
 #include <mbgl/tile/geometry_tile_data.hpp>
 #include <mbgl/tile/tile.hpp>
+#include <codecvt> //! just for DEBUG!!! remove this after debug
+#include <locale> //!
 
 #include <mapbox/polylabel.hpp>
+#include "mbgl/tile/tile_id.hpp"
 
 namespace mbgl {
 
@@ -362,6 +365,10 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap,
 
         // if feature has text, shape the text
         if (feature.formattedText && layoutTextSize > 0.0f) {
+            //! DEBUG segment
+            std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> cvt;
+            printf("tile(%d, %d, %d) feature[%ld]: %s\n",
+                canonicalID.z, canonicalID.y, canonicalID.x, feature.index, cvt.to_bytes(feature.formattedText->rawText()).c_str());
             const float lineHeight = layout->get<TextLineHeight>() * util::ONE_EM;
             const float spacing = util::i18n::allowsLetterSpacing(feature.formattedText->rawText())
                                       ? layout->evaluate<TextLetterSpacing>(zoom, feature, canonicalID) * util::ONE_EM
@@ -582,7 +589,6 @@ void SymbolLayout::addFeature(const std::size_t layoutFeatureIndex,
         assert(sharedData);
         const bool anchorInsideTile = anchor.point.x >= 0 && anchor.point.x < util::EXTENT && anchor.point.y >= 0 &&
                                       anchor.point.y < util::EXTENT;
-
         if (mode == MapMode::Tile || anchorInsideTile) {
             // For static/continuous rendering, only add symbols anchored within this tile:
             //  neighboring symbols will be added as part of the neighboring tiles.

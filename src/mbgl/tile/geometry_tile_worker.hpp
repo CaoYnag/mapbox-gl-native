@@ -77,7 +77,7 @@ private:
     const std::atomic<bool>& obsolete;
     const MapMode mode;
     const float pixelRatio;
-    
+
     std::unique_ptr<FeatureIndex> featureIndex;
     std::unordered_map<std::string, LayerRenderData> renderData;
 

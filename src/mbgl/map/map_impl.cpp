@@ -55,6 +55,7 @@ void Map::Impl::onUpdate() {
                                timePoint,
                                transform.getState(),
                                style->impl->getGlyphURL(),
+                               style->impl->getLocalFontPath(),
                                style->impl->spriteLoaded,
                                style->impl->getTransitionOptions(),
                                style->impl->getLight()->impl,

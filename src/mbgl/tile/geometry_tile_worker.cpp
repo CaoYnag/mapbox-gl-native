@@ -389,11 +389,14 @@ void GeometryTileWorker::parse() {
             std::unique_ptr<Layout> layout = LayerManager::get()->createLayout(
                 {parameters, glyphDependencies, imageDependencies, availableImages}, std::move(geometryLayer), group);
             if (layout->hasDependencies()) {
+                printf("--has dependencies\n");
                 layouts.push_back(std::move(layout));
             } else {
+                printf("--create bucket\n");
                 layout->createBucket({}, featureIndex, renderData, firstLoad, showCollisionBoxes, id.canonical);
             }
         } else {
+            printf("--not required\n");
             const Filter& filter = leaderImpl.filter;
             const std::string& sourceLayerID = leaderImpl.sourceLayer;
             std::shared_ptr<Bucket> bucket = LayerManager::get()->createBucket(parameters, group);
@@ -439,7 +442,7 @@ bool GeometryTileWorker::hasPendingDependencies() const {
     }
     return !pendingImageDependencies.empty();
 }
-    
+
 bool GeometryTileWorker::hasPendingParseResult() const {
     return bool(featureIndex);
 }
@@ -448,7 +451,7 @@ void GeometryTileWorker::finalizeLayout() {
     if (!data || !layers || !hasPendingParseResult() || hasPendingDependencies()) {
         return;
     }
-    
+
     MBGL_TIMING_START(watch)
     optional<AlphaImage> glyphAtlasImage;
     ImageAtlas iconAtlas = makeImageAtlas(imageMap, patternMap, versionMap);
@@ -476,7 +479,7 @@ void GeometryTileWorker::finalizeLayout() {
     layouts.clear();
 
     firstLoad = false;
-    
+
     MBGL_TIMING_FINISH(watch,
                        " Action: " << "SymbolLayout," <<
                        " SourceID: " << sourceID.c_str() <<

@@ -34,6 +34,7 @@ class LocalGlyphRasterizer {
 public:
     virtual ~LocalGlyphRasterizer();
     LocalGlyphRasterizer(const optional<std::string>& path = optional<std::string>());
+    void updateFontPath(const std::string& path);
 
     // virtual so that test harness can override platform-specific behavior
     virtual bool canRasterizeGlyph(const FontStack&, GlyphID);

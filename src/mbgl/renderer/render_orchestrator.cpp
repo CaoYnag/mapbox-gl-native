@@ -103,9 +103,9 @@ public:
 
 }  // namespace
 
-RenderOrchestrator::RenderOrchestrator(bool backgroundLayerAsColor_, const optional<std::string>& localFontFamily_)
+RenderOrchestrator::RenderOrchestrator(bool backgroundLayerAsColor_, const optional<std::string>& localFontPath)
     : observer(&nullObserver()),
-      glyphManager(std::make_unique<GlyphManager>(std::make_unique<LocalGlyphRasterizer>(localFontFamily_))),
+      glyphManager(std::make_unique<GlyphManager>(std::make_unique<LocalGlyphRasterizer>(localFontPath))),
       imageManager(std::make_unique<ImageManager>()),
       lineAtlas(std::make_unique<LineAtlas>()),
       patternAtlas(std::make_unique<PatternAtlas>()),
@@ -174,7 +174,6 @@ std::unique_ptr<RenderTree> RenderOrchestrator::createRenderTree(
                                         *imageManager,
                                         *glyphManager,
                                         updateParameters->prefetchZoomDelta};
-    printf((std::string("glyphurl:") + updateParameters->glyphURL + "\n").c_str());
     glyphManager->setURL(updateParameters->glyphURL);
 
     // Update light.

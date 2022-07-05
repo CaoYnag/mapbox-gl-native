@@ -42,7 +42,7 @@ struct PlacedSymbolData {
 
 class Renderer {
 public:
-    Renderer(gfx::RendererBackend&, float pixelRatio_, const optional<std::string>& localFontFamily = {});
+    Renderer(gfx::RendererBackend&, float pixelRatio_, const optional<std::string>& localFontPath = {});
     ~Renderer();
 
     void markContextLost();

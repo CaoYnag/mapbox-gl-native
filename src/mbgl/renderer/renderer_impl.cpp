@@ -24,8 +24,8 @@ static RendererObserver& nullObserver() {
     return observer;
 }
 
-Renderer::Impl::Impl(gfx::RendererBackend& backend_, float pixelRatio_, const optional<std::string>& localFontFamily_)
-    : orchestrator(!backend_.contextIsShared(), localFontFamily_),
+Renderer::Impl::Impl(gfx::RendererBackend& backend_, float pixelRatio_, const optional<std::string>& localFontPath)
+    : orchestrator(!backend_.contextIsShared(), localFontPath),
       backend(backend_),
       observer(&nullObserver()),
       pixelRatio(pixelRatio_) {}

@@ -22,16 +22,18 @@ public:
         PremultipliedImage image;
         gfx::RenderingStats stats;
     };
-
+    HeadlessFrontend(Size,
+                     float pixelRatio_,
+                     const optional<std::string>& localFontPath);
     HeadlessFrontend(float pixelRatio_,
                      gfx::HeadlessBackend::SwapBehaviour swapBehavior = gfx::HeadlessBackend::SwapBehaviour::NoFlush,
                      gfx::ContextMode mode = gfx::ContextMode::Unique,
-                     const optional<std::string>& localFontFamily = {});
+                     const optional<std::string>& localFontPath = {});
     HeadlessFrontend(Size,
                      float pixelRatio_,
                      gfx::HeadlessBackend::SwapBehaviour swapBehavior = gfx::HeadlessBackend::SwapBehaviour::NoFlush,
                      gfx::ContextMode mode = gfx::ContextMode::Unique,
-                     const optional<std::string>& localFontFamily = {});
+                     const optional<std::string>& localFontPath = {});
     ~HeadlessFrontend() override;
 
     void reset() override;

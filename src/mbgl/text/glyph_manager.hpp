@@ -42,6 +42,9 @@ public:
     void setURL(const std::string& url) {
         glyphURL = url;
     }
+    void setPath(const std::string& path){
+        localGlyphRasterizer->updateFontPath(path);
+    }
 
     void setObserver(GlyphManagerObserver*);
 
@@ -68,9 +71,9 @@ private:
     void requestRange(GlyphRequest&, const FontStack&, const GlyphRange&, FileSource& fileSource);
     void processResponse(const Response&, const FontStack&, const GlyphRange&);
     void notify(GlyphRequestor&, const GlyphDependencies&);
-    
+
     GlyphManagerObserver* observer = nullptr;
-    
+
     std::unique_ptr<LocalGlyphRasterizer> localGlyphRasterizer;
 };
 

@@ -113,6 +113,13 @@ StyleParseResult Parser::parse(const std::string& json) {
         }
     }
 
+    if (document.HasMember("fonts")) {
+        const JSValue& fonts = document["fonts"];
+        if (fonts.IsString()) {
+            localFontPath = { fonts.GetString(), fonts.GetStringLength() };
+        }
+    }
+
     // Call for side effect of logging warnings for invalid values.
     fontStacks();
 

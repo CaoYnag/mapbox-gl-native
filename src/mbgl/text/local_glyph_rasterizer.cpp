@@ -112,6 +112,9 @@ public:
         }
         return {};
     }
+    void updateFontPath(const std::string& path){
+        loadFace(path);
+    }
 private:
     /* try load a new face, only used by canRasterizeGlyph */
     void loadFace(const fs::path& path){
@@ -145,7 +148,7 @@ private:
         }
         FT_Done_Face(test);
     }
-    
+
     std::unique_ptr<LibGuard> libg;
     std::map<std::string, std::shared_ptr<FaceGuard>> faces;
 };
@@ -161,6 +164,10 @@ bool LocalGlyphRasterizer::canRasterizeGlyph(const FontStack& fs, GlyphID id) {
 
 Glyph LocalGlyphRasterizer::rasterizeGlyph(const FontStack& fs, GlyphID id) {
     return impl->rasterizeGlyph(fs, id);
+}
+
+Glyph LocalGlyphRasterizer::updateFontPath(const std::string& path){
+    impl->updateFontPath(path);
 }
 
 } // namespace mbgl

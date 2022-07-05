@@ -36,7 +36,7 @@ LayerRenderData* GeometryTile::LayoutResult::getLayerRenderData(const style::Lay
         // Layer data might be outdated, see issue #12432.
         return nullptr;
     }
-    return &result;   
+    return &result;
 }
 
 class GeometryTileRenderData final : public TileRenderData {
@@ -160,6 +160,7 @@ GeometryTile::GeometryTile(const OverscaledTileID& id_,
       imageManager(parameters.imageManager),
       mode(parameters.mode),
       showCollisionBoxes(parameters.debugOptions & MapDebugOptions::Collision) {
+        printf("geomtry tile(%d, %d, %d) created\n", id_.canonical.z, id_.canonical.x, id_.canonical.y);
 }
 
 GeometryTile::~GeometryTile() {
@@ -247,9 +248,9 @@ void GeometryTile::onLayout(std::shared_ptr<LayoutResult> result, const uint64_t
 
     layoutResult = std::move(result);
     if (!atlasTextures) {
-    	atlasTextures = std::make_shared<TileAtlasTextures>();
+        atlasTextures = std::make_shared<TileAtlasTextures>();
     }
-    
+
     observer->onTileChanged(*this);
 }
 
@@ -260,7 +261,7 @@ void GeometryTile::onError(std::exception_ptr err, const uint64_t resultCorrelat
     }
     observer->onTileError(*this, std::move(err));
 }
-    
+
 void GeometryTile::onGlyphsAvailable(GlyphMap glyphs) {
     worker.self().invoke(&GeometryTileWorker::onGlyphsAvailable, std::move(glyphs));
 }

@@ -125,6 +125,7 @@ void Style::Impl::parse(const std::string& json_) {
         onSpriteError(std::make_exception_ptr(std::runtime_error("Unable to find resource provider for sprite url.")));
     }
     glyphURL = parser.glyphURL;
+    localFontPath = parser.localFontPath;
 
     loaded = true;
     observer->onStyleLoaded();
@@ -394,6 +395,10 @@ void Style::Impl::dumpDebugLogs() const {
 
 const std::string& Style::Impl::getGlyphURL() const {
     return glyphURL;
+}
+
+const std::string& Style::Impl::getLocalFontPath() const{
+    return localFontPath;
 }
 
 Immutable<std::vector<Immutable<Image::Impl>>> Style::Impl::getImageImpls() const {

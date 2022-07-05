@@ -29,6 +29,7 @@ public:
 
     std::string spriteURL;
     std::string glyphURL;
+    std::string localFontPath;
 
     std::vector<std::unique_ptr<Source>> sources;
     std::vector<std::unique_ptr<Layer>> layers;

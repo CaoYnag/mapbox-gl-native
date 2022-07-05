@@ -120,9 +120,9 @@ private:
     std::shared_ptr<TileAtlasTextures> atlasTextures;
 
     const MapMode mode;
-    
+
     bool showCollisionBoxes;
-    
+
     enum class FadeState {
         Loaded,
         NeedsFirstPlacement,

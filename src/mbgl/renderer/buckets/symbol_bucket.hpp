@@ -143,12 +143,9 @@ public:
         optional<gfx::VertexBuffer<gfx::Vertex<SymbolDynamicLayoutAttributes>>> dynamicVertexBuffer;
         optional<gfx::VertexBuffer<gfx::Vertex<SymbolOpacityAttributes>>> opacityVertexBuffer;
         optional<gfx::IndexBuffer> indexBuffer;
-    } text;
+    } text, icon, sdfIcon;
 
     std::unique_ptr<SymbolSizeBinder> iconSizeBinder;
-
-    Buffer icon;
-    Buffer sdfIcon;
     
     struct CollisionBuffer {
         gfx::VertexVector<gfx::Vertex<CollisionBoxLayoutAttributes>> vertices;

@@ -83,6 +83,7 @@ public:
     void removeImage(const std::string&);
 
     const std::string& getGlyphURL() const;
+    const std::string& getLocalFontPath() const;
 
     using ImageImpls = std::vector<Immutable<Image::Impl>>;
     Immutable<ImageImpls> getImageImpls() const;
@@ -107,6 +108,7 @@ private:
     std::unique_ptr<SpriteLoader> spriteLoader;
 
     std::string glyphURL;
+    std::string localFontPath;
     Immutable<ImageImpls> images = makeMutable<ImageImpls>();
     CollectionWithPersistentOrder<Source> sources;
     Collection<Layer> layers;

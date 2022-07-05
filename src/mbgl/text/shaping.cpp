@@ -372,7 +372,7 @@ void shapeLines(Shaping& shaping,
     for (TaggedString& line : lines) {
         // Collapse whitespace so it doesn't throw off justification
         line.trim();
-        
+
         const double lineMaxScale = line.getMaxScale();
         const double maxLineOffset = (lineMaxScale - 1.0) * util::ONE_EM;
         double lineOffset = 0.0;
@@ -384,7 +384,7 @@ void shapeLines(Shaping& shaping,
             y += lineHeight; // Still need a line feed after empty line
             continue;
         }
-        
+
         for (std::size_t i = 0; i < line.length(); i++) {
             const std::size_t sectionIndex = line.getSectionIndex(i);
             const SectionOptions& section = line.sectionAt(sectionIndex);
@@ -573,7 +573,6 @@ Shaping getShaping(const TaggedString& formattedString,
                imagePositions,
                layoutTextSizeAtBucketZoomLevel,
                allowVerticalPlacement);
-
     return shaping;
 }
 

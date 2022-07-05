@@ -155,7 +155,7 @@ void SymbolBucket::upload(gfx::UploadPass& uploadPass) {
                 collisionCircle.dynamicVertexBuffer = uploadPass.createVertexBuffer(std::move(collisionCircle.dynamicVertices), gfx::BufferUsageType::StreamDraw);
             } else {
                 uploadPass.updateVertexBuffer(*collisionCircle.dynamicVertexBuffer, std::move(collisionCircle.dynamicVertices));
-            }
+            }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
         }
     };
     if (hasIconCollisionCircleData()) {
