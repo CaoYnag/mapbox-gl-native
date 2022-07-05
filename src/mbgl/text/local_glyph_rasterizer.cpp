@@ -166,7 +166,7 @@ Glyph LocalGlyphRasterizer::rasterizeGlyph(const FontStack& fs, GlyphID id) {
     return impl->rasterizeGlyph(fs, id);
 }
 
-Glyph LocalGlyphRasterizer::updateFontPath(const std::string& path){
+void LocalGlyphRasterizer::updateFontPath(const std::string& path){
     impl->updateFontPath(path);
 }
 
