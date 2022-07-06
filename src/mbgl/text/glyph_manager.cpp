@@ -63,7 +63,7 @@ void GlyphManager::getGlyphs(GlyphRequestor& requestor, GlyphDependencies glyphD
 Glyph GlyphManager::generateLocalSDF(const FontStack& fontStack, GlyphID glyphID) {
     Glyph local = localGlyphRasterizer->rasterizeGlyph(fontStack, glyphID);
     //local.bitmap = util::transformRasterToSDF(local.bitmap, 8, .25); // origin bak
-    local.bitmap = util::transformRasterToSDF(local.bitmap, 2, .25);
+    //local.bitmap = util::transformRasterToSDF(local.bitmap, 2, .25);
     return local;
 }
 

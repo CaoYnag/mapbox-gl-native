@@ -17,6 +17,7 @@
 #include <locale> //!
 
 #include <mapbox/polylabel.hpp>
+#include "mbgl/layout/symbol_instance.hpp"
 #include "mbgl/tile/tile_id.hpp"
 
 namespace mbgl {
@@ -365,10 +366,6 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap,
 
         // if feature has text, shape the text
         if (feature.formattedText && layoutTextSize > 0.0f) {
-            //! DEBUG segment
-            std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> cvt;
-            printf("tile(%d, %d, %d) feature[%ld]: %s\n",
-                canonicalID.z, canonicalID.y, canonicalID.x, feature.index, cvt.to_bytes(feature.formattedText->rawText()).c_str());
             const float lineHeight = layout->get<TextLineHeight>() * util::ONE_EM;
             const float spacing = util::i18n::allowsLetterSpacing(feature.formattedText->rawText())
                                       ? layout->evaluate<TextLetterSpacing>(zoom, feature, canonicalID) * util::ONE_EM
@@ -464,6 +461,7 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap,
 
                 // Horizontal point or line label.
                 Shaping shaping = applyShaping(*feature.formattedText, WritingModeType::Horizontal, textAnchor, textJustify);
+
                 if (shaping) {
                     shapedTextOrientations.horizontal = std::move(shaping);
                 }
@@ -617,7 +615,6 @@ void SymbolLayout::addFeature(const std::size_t layoutFeatureIndex,
                                          variableTextOffset,
                                          allowVerticalPlacement,
                                          iconType);
-
             if (sortFeaturesByKey) {
                 if (!sortKeyRanges.empty() && sortKeyRanges.back().sortKey == feature.sortKey) {
                     sortKeyRanges.back().end = symbolInstances.size();
@@ -786,6 +783,7 @@ void SymbolLayout::createBucket(const ImagePositions&,
         const bool singleLine = symbolInstance.singleLine;
 
         const auto& feature = features.at(symbolInstance.layoutFeatureIndex);
+        std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> cvt;
 
         // Insert final placement into collision tree and add glyphs/icons to buffers
 

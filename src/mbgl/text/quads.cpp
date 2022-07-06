@@ -10,6 +10,7 @@
 #include <mbgl/util/optional.hpp>
 
 #include <cassert>
+#include "mbgl/text/glyph.hpp"
 
 namespace mbgl {
 
@@ -321,7 +322,6 @@ SymbolQuads getGlyphQuads(const Shaping& shapedText,
                                positionedGlyph.sectionIndex);
         }
     }
-
     return quads;
 }
 } // namespace mbgl

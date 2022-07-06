@@ -123,6 +123,11 @@ class Shaping {
     bool iconsInText = false;
 };
 
+//! ONLY FOR DEBUG
+inline void DebugShaping(const Shaping& shp){
+    printf("======>Shaping rct[%.2f, %.2f, %.2f, %.2f] lineNum: %ld\n", shp.top, shp.left, shp.bottom, shp.right, shp.positionedLines.size());
+}
+
 enum class WritingModeType : uint8_t {
     None = 0,
     Horizontal = 1 << 0,

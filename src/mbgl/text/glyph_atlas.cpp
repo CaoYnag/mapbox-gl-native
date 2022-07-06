@@ -38,6 +38,25 @@ GlyphAtlas makeGlyphAtlas(const GlyphMap& glyphs) {
                                     bin.y + padding
                                  },
                                  glyph.bitmap.size);
+                {
+                    //! only for debug, write glyph to disk
+                    char buff[256];
+                    sprintf(buff, "glyphs_cp/%d_%d_%d_%d_%d_%d_%d_%d",
+                        glyph.id, glyph.metrics.width, glyph.metrics.height,
+                        glyph.metrics.left, glyph.metrics.top, glyph.metrics.advance,
+                        result.image.size.width, result.image.size.height);
+                    FILE* fp = fopen(buff, "w+");
+                    fwrite(result.image.data.get(), 1, result.image.bytes(), fp);
+                    fclose(fp);
+
+                    sprintf(buff, "glyphs_ori/%d_%d_%d_%d_%d_%d_%d_%d",
+                        glyph.id, glyph.metrics.width, glyph.metrics.height,
+                        glyph.metrics.left, glyph.metrics.top, glyph.metrics.advance,
+                        glyph.bitmap.size.width, glyph.bitmap.size.height);
+                    fp = fopen(buff, "w+");
+                    fwrite(glyph.bitmap.data.get(), 1, glyph.bitmap.bytes(), fp);
+                    fclose(fp);
+                }
 
                 positions.emplace(glyph.id,
                                   GlyphPosition {
@@ -51,6 +70,7 @@ GlyphAtlas makeGlyphAtlas(const GlyphMap& glyphs) {
                                   });
             }
         }
+        printf("------>DONE GENERATE POSITION MAP: %ld => %ld\n", glyphMapEntry.second.size(), positions.size());
     }
 
     pack.shrink();

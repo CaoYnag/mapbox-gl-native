@@ -146,7 +146,7 @@ public:
     } text, icon, sdfIcon;
 
     std::unique_ptr<SymbolSizeBinder> iconSizeBinder;
-    
+
     struct CollisionBuffer {
         gfx::VertexVector<gfx::Vertex<CollisionBoxLayoutAttributes>> vertices;
         gfx::VertexVector<gfx::Vertex<CollisionBoxDynamicAttributes>> dynamicVertices;

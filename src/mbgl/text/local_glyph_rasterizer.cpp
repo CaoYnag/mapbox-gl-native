@@ -63,7 +63,7 @@ public:
                 FT_UInt idx = FT_Get_Char_Index(face, id);
                 if(!idx) continue;
 
-                ///*
+                /*
                 auto glyph = std::make_shared<sgf::glyph_info>();
                 glyph->char_index = idx;
                 sgf::RenderSDF(*glyph, 30, Glyph::borderSize, 0.25, face);
@@ -72,7 +72,7 @@ public:
                     id, font.c_str(), glyph->left, glyph->top, glyph->width, glyph->height,
                     glyph->width + ext, glyph->height + ext,  static_cast<uint32_t>(glyph->advance));
 
-                return {0, 
+                return {id, 
                 AlphaImage({glyph->width + ext, glyph->height + ext}, reinterpret_cast<const uint8_t*>(glyph->bitmap.c_str()), glyph->bitmap.length()), 
                 {
                     glyph->width,
@@ -81,24 +81,24 @@ public:
                     glyph->top,
                     static_cast<uint32_t>(glyph->advance)
                 }};
-                //*/
-                /*
+                */
+                ///*
                 FT_Error err = FT_Load_Glyph(face, idx, FT_LOAD_DEFAULT);
                 if(err){
-                    printf("failed load[0x%x] with font[%s]: 0x%x - %s\n", id, font.c_str(), err, FT_Error_String(err));
+                    //printf("failed load[0x%x] with font[%s]: 0x%x - %s\n", id, font.c_str(), err, FT_Error_String(err));
                     continue;
                 }
                 err = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
                 if(err) {
-                    printf("failed render[0x%x] with font[%s]: 0x%x - %s\n", id, font.c_str(), err, FT_Error_String(err));
+                    //printf("failed render[0x%x] with font[%s]: 0x%x - %s\n", id, font.c_str(), err, FT_Error_String(err));
                     continue;
                 }
-                printf("success render[0x%x] with font[%s]\n", id, font.c_str());
+                //printf("success render[0x%x] with font[%s]\n", id, font.c_str());
 
                 auto* glyph = face->glyph;
                 uint32_t wid = glyph->bitmap.width;
                 uint32_t hgt = glyph->bitmap.rows;
-                Glyph local{0, AlphaImage({wid, hgt}, glyph->bitmap.buffer, static_cast<unsigned long>(wid) * hgt), 
+                Glyph local{id, AlphaImage({wid, hgt}, glyph->bitmap.buffer, static_cast<unsigned long>(wid) * hgt),
                 {
                     wid - 6, hgt - 6,
                     0, 0,
@@ -107,7 +107,7 @@ public:
                 //local.bitmap = util::transformRasterToSDF(local.bitmap, 8, .25); // origin bak
                 local.bitmap = util::transformRasterToSDF(local.bitmap, 2, .25);
                 return local;
-                */
+                //*/
             }
         }
         return {};

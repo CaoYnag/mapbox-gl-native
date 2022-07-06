@@ -340,7 +340,7 @@ void GeometryTileWorker::parse() {
 
     MBGL_TIMING_START(watch)
 
-    std::unordered_map<std::string, std::unique_ptr<SymbolLayout>> symbolLayoutMap;
+    std::unordered_map<std::string, std::unique_ptr<SymbolLayout>> symbolLayoutMap; //???? not use
 
     renderData.clear();
     layouts.clear();
@@ -389,14 +389,11 @@ void GeometryTileWorker::parse() {
             std::unique_ptr<Layout> layout = LayerManager::get()->createLayout(
                 {parameters, glyphDependencies, imageDependencies, availableImages}, std::move(geometryLayer), group);
             if (layout->hasDependencies()) {
-                printf("--has dependencies\n");
                 layouts.push_back(std::move(layout));
             } else {
-                printf("--create bucket\n");
                 layout->createBucket({}, featureIndex, renderData, firstLoad, showCollisionBoxes, id.canonical);
             }
         } else {
-            printf("--not required\n");
             const Filter& filter = leaderImpl.filter;
             const std::string& sourceLayerID = leaderImpl.sourceLayer;
             std::shared_ptr<Bucket> bucket = LayerManager::get()->createBucket(parameters, group);
@@ -469,7 +466,6 @@ void GeometryTileWorker::finalizeLayout() {
             if (!layout->hasSymbolInstances()) {
                 continue;
             }
-
             // layout adds the bucket to buckets
             layout->createBucket(
                 iconAtlas.patternPositions, featureIndex, renderData, firstLoad, showCollisionBoxes, id.canonical);
