@@ -1,9 +1,11 @@
+#include <math.h>
 #include <cstdint>
 #include <mbgl/map/map.hpp>
 #include <mbgl/map/map_options.hpp>
 #include <mbgl/util/image.hpp>
 #include <mbgl/util/run_loop.hpp>
 #include <mbgl/util/default_styles.hpp>
+#include <mbgl/util/projection.hpp>
 
 #include <mbgl/gfx/backend.hpp>
 #include <mbgl/gfx/headless_frontend.hpp>
@@ -16,6 +18,7 @@
 #include <fstream>
 #include <filesystem>
 #include <optional>
+#include <chrono>
 
 std::string read_file(const std::string& path)
 {
@@ -34,15 +37,18 @@ std::string read_file(const std::string& path)
     return ret;
 }
 
-int render(long z, double x, double y, uint32_t size, const std::string& style, const std::string& output)
+int render(long z, long x, long y, uint32_t size, const std::string& style, const std::string& output)
 {
     using namespace mbgl;
 
     util::RunLoop loop;
 
+    auto ll = Projection::unproject({x + .5, y + .5}, pow(2, z) / util::tileSize);
+    printf("got pos(%.2f, %.2f) for tile(%ld, %ld, %ld)\n", ll.longitude(), ll.latitude(), z, y, x);
+
     HeadlessFrontend frontend({ size, size }, 1.0);
     Map map(frontend, MapObserver::nullObserver(),
-            MapOptions().withMapMode(MapMode::Static).withSize(frontend.getSize()).withPixelRatio(1.0),
+            MapOptions().withMapMode(MapMode::Tile).withSize(frontend.getSize()).withPixelRatio(1.0),
             ResourceOptions());
 
 
@@ -54,8 +60,9 @@ int render(long z, double x, double y, uint32_t size, const std::string& style, 
         const char* SOURCE_NAME = "source";
         auto source = std::make_unique<mbgl::style::VectorSource>(SOURCE_NAME);
     }*/
+    auto start = std::chrono::high_resolution_clock::now();
     map.jumpTo(CameraOptions()
-                   .withCenter(LatLng { y, x })
+                   .withCenter(ll)
                    .withZoom(z));
     std::cout << "after jumpto" << std::endl;
     map.setDebug(mbgl::MapDebugOptions::TileBorders | mbgl::MapDebugOptions::ParseStatus);
@@ -67,6 +74,8 @@ int render(long z, double x, double y, uint32_t size, const std::string& style, 
         std::cout << "---app end render" << std::endl;
         out << encodePNG(rslt.image);
         out.close();
+        std::chrono::duration<double> diff = std::chrono::high_resolution_clock::now() - start;
+        std::cout << "render cost " << std::chrono::duration_cast<std::chrono::milliseconds>(diff).count() << "ms." << std::endl;
     } catch(std::exception& e) {
         std::cout << "Error: " << e.what() << std::endl;
        return 1;
@@ -82,9 +91,9 @@ int main(int argc, char *argv[]) {
     args::ValueFlag<std::string> outputValue(argumentParser, "file", "Output file name", {'o', "output"});
     args::ValueFlag<std::string> sourceValue(argumentParser, "file", "tile json file", {'j', "json"});
 
-    args::ValueFlag<double> zoomValue(argumentParser, "number", "Zoom level", {'z', "zoom"});
-    args::ValueFlag<double> lonValue(argumentParser, "degrees", "Longitude", {'x', "lon"});
-    args::ValueFlag<double> latValue(argumentParser, "degrees", "Latitude", {'y', "lat"});
+    args::ValueFlag<long> zValue(argumentParser, "n", "Zoom level", {'z', "zoom"});
+    args::ValueFlag<long> xValue(argumentParser, "n", "tile column", {'x', "column"});
+    args::ValueFlag<long> yValue(argumentParser, "n", "tile row", {'y', "row"});
     args::ValueFlag<uint32_t> sizeValue(argumentParser, "pixels", "Image Size", {'S', "size"});
 
     try {
@@ -102,13 +111,13 @@ int main(int argc, char *argv[]) {
         exit(2);
     }
 
-    const double lat = latValue ? args::get(latValue) : 0;
-    const double lon = lonValue ? args::get(lonValue) : 0;
-    const double zoom = zoomValue ? args::get(zoomValue) : 0;
+    const long y = yValue ? args::get(yValue) : 0;
+    const long x = xValue ? args::get(xValue) : 0;
+    const long z = zValue ? args::get(zValue) : 0;
     const uint32_t size = sizeValue ? args::get(sizeValue) : 512;
     const std::string output = outputValue ? args::get(outputValue) : "out.png";
     std::string style = styleValue ? args::get(styleValue) : "style.json";
     std::string tilejson = sourceValue ? args::get(sourceValue) : "tile.json";
 
-    return render(zoom, lon, lat, size, style, output);
+    return render(z, x, y, size, style, output);
 }

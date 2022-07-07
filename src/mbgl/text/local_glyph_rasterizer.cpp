@@ -93,7 +93,7 @@ public:
                     //printf("failed render[0x%x] with font[%s]: 0x%x - %s\n", id, font.c_str(), err, FT_Error_String(err));
                     continue;
                 }
-                //printf("success render[0x%x] with font[%s]\n", id, font.c_str());
+                printf("success render[0x%x] with font[%s]\n", id, font.c_str());
 
                 auto* glyph = face->glyph;
                 uint32_t wid = glyph->bitmap.width;
@@ -140,7 +140,7 @@ private:
             }
             // TODO in debug mode, show detail.
             sprintf(buff, "%s %s", face->family_name, face->style_name);
-            printf("loaded local font %s in file %s\n", buff, path.c_str());
+            printf("loaded local font %s : %s in file %s\n", face->family_name, face->style_name, path.c_str());
             constexpr const long size = 30;
             FT_Set_Char_Size(face, 0, size << 6, 0, 0);
             //err = FT_Set_Pixel_Sizes(face, 30, 0); // wid, hgt

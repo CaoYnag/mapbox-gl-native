@@ -43,6 +43,16 @@ target_link_libraries(
 )
 
 add_executable(
+    translate
+    ${PROJECT_SOURCE_DIR}/bin/translate.cpp
+)
+
+target_link_libraries(
+    translate
+    PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
+)
+
+add_executable(
     unpack_glyph_pbf
     ${PROJECT_SOURCE_DIR}/bin/unpack_glyph_pbf.cpp
 )

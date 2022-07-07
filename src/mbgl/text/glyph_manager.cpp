@@ -38,6 +38,9 @@ void GlyphManager::getGlyphs(GlyphRequestor& requestor, GlyphDependencies glyphD
                     entry.glyphs.emplace(glyphID, makeMutable<Glyph>(generateLocalSDF(fontStack, glyphID)));
                 }
             } else {
+                std::string fs_str;
+                for(const auto& fs : fontStack) fs_str += fs + ", ";
+                printf("cannot render[%d] for fs [%s]\n", glyphID, fs_str.c_str());
                 ranges.insert(getGlyphRange(glyphID));
             }
         }
