@@ -43,6 +43,22 @@ target_link_libraries(
 )
 
 add_executable(
+    get_lrc
+    ${PROJECT_SOURCE_DIR}/bin/get_lrc.cpp
+)
+
+target_include_directories(
+    get_lrc
+    PRIVATE ${PROJECT_SOURCE_DIR}/src
+)
+
+target_link_libraries(
+    get_lrc
+    PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
+)
+
+
+add_executable(
     unpack_glyph_pbf
     ${PROJECT_SOURCE_DIR}/bin/unpack_glyph_pbf.cpp
 )

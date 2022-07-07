@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <array>
 #include <limits>
+#include "mbgl/util/bounding_volumes.hpp"
 
 namespace mbgl {
 
@@ -201,6 +202,8 @@ public:
     LatLng screenCoordinateToLatLng(const ScreenCoordinate&, LatLng::WrapMode = LatLng::Unwrapped) const;
     // Implements mapbox-gl-js pointCoordinate() : MercatorCoordinate.
     TileCoordinate screenCoordinateToTileCoordinate(const ScreenCoordinate&, uint8_t atZoom) const;
+    util::AABB viewBox() const; // TODO cache this value later
+    TileCoordinate latLngToTileCoordinate(const LatLng&, uint8_t atZoom) const;
 
     double zoomScale(double zoom) const;
     double scaleZoom(double scale) const;

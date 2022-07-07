@@ -1,3 +1,5 @@
+#include <cmath>
+#include <limits>
 #include <mbgl/map/transform_state.hpp>
 #include <mbgl/math/log2.hpp>
 #include <mbgl/util/bounding_volumes.hpp>
@@ -9,6 +11,8 @@
 
 #include <functional>
 #include <list>
+#include "mbgl/util/geo.hpp"
+#include "mbgl/util/vectors.hpp"
 
 namespace mbgl {
 
@@ -147,6 +151,56 @@ int32_t coveringZoomLevel(double zoom, style::SourceType type, uint16_t size) {
     }
 }
 
+// TODO temporary placed here. move to tile_coordinate.hpp later.
+TileCoordinatePoint ProjectOrtho(const LatLng& ll , double numTiles){
+    double resolvY = 180 / numTiles;
+    double resolvX = resolvY * 2;
+    return {(ll.longitude() + 180) / resolvX, (90 - ll.latitude()) / resolvY};
+}
+
+AABB viewBox(double  /*z*/, double numTiles, double worldSize, Size size, const LatLng& center){
+    double pixSize = 180 / worldSize;
+    double distX = pixSize * size.width; // cause 360 in hor
+    double distY = pixSize * size.height / 2;
+    double minX = center.longitude() - distX;
+    double minY = center.latitude() - distY;
+    double maxX = center.longitude() + distX;
+    double maxY = center.latitude() + distY;
+    LatLng min{minY < -90 ? -90 : minY, minX < -180 ? -180 : minX};
+    LatLng max{maxY > 90 ? 90 : maxY, maxX > 180 ? 180 : maxX};
+
+    auto minCoord = ProjectOrtho(min, numTiles);
+    auto maxCoord = ProjectOrtho(max, numTiles);
+
+    // NOTICE node tile not use z
+    return AABB{vec3{minCoord.x, maxCoord.y, .0}, vec3{maxCoord.x, minCoord.y, .0}};
+}
+
+bool eq(double a, double b){
+    return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * std::numeric_limits<double>::epsilon());
+}
+bool gt(double a, double b){
+    //return b - a < std::numeric_limits<double>::epsilon();
+    return (a - b) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * std::numeric_limits<double>::epsilon());
+}
+bool ge(double a, double b){
+    return gt(a, b) || eq(a, b);
+}
+
+bool intersects_precise(const AABB& a, const AABB& b){
+    if (ge(a.min[0], b.max[0]) || ge(b.min[0], a.max[0])) return false;
+    if (ge(a.min[1], b.max[1]) || ge(b.min[1], a.max[1])) return false;
+    if (ge(a.min[2], b.max[2]) || ge(b.min[2], a.max[2])) return false;
+    return true;
+}
+// return true only a contains b
+bool contains(const AABB& a, const AABB& b){
+    if (gt(a.min[0], b.min[0]) || gt(b.max[0], a.max[0])) return false;
+    if (gt(a.min[1], b.min[1]) || gt(b.max[1], a.max[1])) return false;
+    if (gt(a.min[2], b.min[2]) || gt(b.max[2], a.max[2])) return false;
+    return true;
+}
+
 std::vector<OverscaledTileID> tileCover(const TransformState& state, uint8_t z, const optional<uint8_t>& overscaledZ) {
     struct Node {
         AABB aabb;
@@ -167,15 +221,20 @@ std::vector<OverscaledTileID> tileCover(const TransformState& state, uint8_t z, 
     const uint8_t maxZoom = z;
     const uint8_t overscaledZoom = overscaledZ.value_or(z);
     const bool flippedY = state.getViewportMode() == ViewportMode::FlippedY;
-    printf("--->in tile cover. numTiles: %.1f, %.2f, iz: %d, az: %d, oz: %d\n",
-        numTiles, worldSize, minZoom, maxZoom, overscaledZoom);
+    printf("--->in tile cover. numTiles: %.1f, worldSize: %.2f, iz: %d, az: %d, oz: %d, flipY: %d\n",
+        numTiles, worldSize, minZoom, maxZoom, overscaledZoom, flippedY);
 
     auto centerPoint =
         TileCoordinate::fromScreenCoordinate(state, z, {state.getSize().width / 2.0, state.getSize().height / 2.0}).p;
+    //NOTICE we just mapping camera viewport to realmap with orthogonal projection.
+    // so, just transform camera pos(lat, lon) to normalized map position(0, 0, numTiles, numTiles).
+    //auto centerPoint = ProjectOrtho(state.getLatLng(), numTiles);
+    //auto view = viewBox(z, numTiles, worldSize, state.getSize(), state.getLatLng());
+    auto view = state.viewBox();
 
     vec3 centerCoord = {{centerPoint.x, centerPoint.y, 0.0}};
 
-    const Frustum frustum = Frustum::fromInvProjMatrix(state.getInvProjectionMatrix(), worldSize, z, flippedY);
+    //const Frustum frustum = Frustum::fromInvProjMatrix(state.getInvProjectionMatrix(), worldSize, z, flippedY);
 
     // There should always be a certain number of maximum zoom level tiles surrounding the center location
     const double radiusOfMaxLvlLodInTiles = 3;
@@ -208,11 +267,9 @@ std::vector<OverscaledTileID> tileCover(const TransformState& state, uint8_t z, 
 
         // Use cached visibility information of ancestor nodes
         if (!node.fullyVisible) {
-            const IntersectionResult intersection = frustum.intersects(node.aabb);
+            if(!view.intersects(node.aabb)) continue;
 
-            if (intersection == IntersectionResult::Separate) continue;
-
-            node.fullyVisible = intersection == IntersectionResult::Contains;
+            node.fullyVisible = contains(view, node.aabb);
         }
 
         const vec3 distanceXyz = node.aabb.distanceXYZ(centerCoord);
@@ -230,7 +287,8 @@ std::vector<OverscaledTileID> tileCover(const TransformState& state, uint8_t z, 
         if (node.zoom == maxZoom || (*longestDim > distToSplit && node.zoom >= minZoom)) {
             // Perform precise intersection test between the frustum and aabb. This will cull < 1% false positives
             // missed by the original test
-            if (node.fullyVisible || frustum.intersectsPrecise(node.aabb, true) != IntersectionResult::Separate) {
+            //if (node.fullyVisible || frustum.intersectsPrecise(node.aabb, true) != IntersectionResult::Separate) {
+            if(node.fullyVisible || intersects_precise(view, node.aabb)){
                 const OverscaledTileID id = {
                     node.zoom == maxZoom ? overscaledZoom : node.zoom, node.wrap, node.zoom, node.x, node.y};
                 const double dx = node.wrap * numTiles + node.x + 0.5 - centerCoord[0];

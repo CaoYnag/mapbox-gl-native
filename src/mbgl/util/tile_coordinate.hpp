@@ -6,6 +6,7 @@
 #include <mbgl/tile/tile_id.hpp>
 #include <mbgl/util/geometry.hpp>
 #include <mbgl/util/projection.hpp>
+#include "mbgl/util/geo.hpp"
 
 namespace mbgl {
 

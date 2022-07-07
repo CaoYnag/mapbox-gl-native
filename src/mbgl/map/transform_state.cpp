@@ -661,8 +661,40 @@ ScreenCoordinate TransformState::latLngToScreenCoordinate(const LatLng& latLng, 
     matrix::transformMat4(p, c, getCoordMatrix());
     return {p[0] / p[3], size.height - p[1] / p[3]};
 }
+TileCoordinate TransformState::latLngToTileCoordinate(const LatLng& ll , uint8_t atZoom) const {
+    const double numTiles = std::pow(2.0, atZoom);
+    double resolvY = 180 / numTiles;
+    double resolvX = resolvY * 2;
+    return {{(ll.longitude() + 180) / resolvX, (90 - ll.latitude()) / resolvY}, .0};
+}
+util::AABB TransformState::viewBox() const {
+    const double worldSize = Projection::worldSize(getScale());
+    double pixSize = 180 / worldSize;
+    double distX = pixSize * size.width; // cause 360 in hor
+    double distY = pixSize * size.height / 2;
+    double minX = getLatLng().longitude() - distX;
+    double minY = getLatLng().latitude() - distY;
+    double maxX = getLatLng().longitude() + distX;
+    double maxY = getLatLng().latitude() + distY;
+    LatLng min{minY < -90 ? -90 : minY, minX < -180 ? -180 : minX};
+    LatLng max{maxY > 90 ? 90 : maxY, maxX > 180 ? 180 : maxX};
+
+    const double numTiles = std::pow(2.0, getZoom());
+    auto minCoord = latLngToTileCoordinate(min, numTiles).p;
+    auto maxCoord = latLngToTileCoordinate(max, numTiles).p;
+
+    // NOTICE node tile not use z
+    return util::AABB{vec3{minCoord.x, maxCoord.y, .0}, vec3{maxCoord.x, minCoord.y, .0}};
+}
 
 TileCoordinate TransformState::screenCoordinateToTileCoordinate(const ScreenCoordinate& point, uint8_t atZoom) const {
+    auto view = viewBox();
+    double sx = point.x / size.width;
+    double sy = point.y / size.height;
+    return {{view.max[0] * sx + (1 - sx) * view.min[0],
+             view.max[1] * sy + (1 - sy) * view.min[1]}, atZoom + .0};
+}
+/*TileCoordinate TransformState::screenCoordinateToTileCoordinate(const ScreenCoordinate& point, uint8_t atZoom) const {
     if (size.isEmpty()) {
         return {{}, 0};
     }
@@ -692,9 +724,12 @@ TileCoordinate TransformState::screenCoordinateToTileCoordinate(const ScreenCoor
     double z1 = coord1[2] / w1;
     double t = z0 == z1 ? 0 : (targetZ - z0) / (z1 - z0);
 
+    printf("------>mid z0: %.2f, z1: %.2f, t: %.2f p0(%.2f, %.2f) p1(%.2f, %.2f)\n",
+        z0, z1, t, p0.x, p0.y, p1.x, p1.y);
+
     Point<double> p = util::interpolate(p0, p1, t) / scale * static_cast<double>(1 << atZoom);
     return {{p.x, p.y}, static_cast<double>(atZoom)};
-}
+}*/
 
 LatLng TransformState::screenCoordinateToLatLng(const ScreenCoordinate& point, LatLng::WrapMode wrapMode) const {
     auto coord = screenCoordinateToTileCoordinate(point, 0);

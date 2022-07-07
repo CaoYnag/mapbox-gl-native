@@ -29,7 +29,7 @@ std::string read_file(const std::string& path)
         n = fread(buff, 1, batch, fp);
         ret += std::string(buff, n);
     }
-    
+
     fclose(fp);
     return ret;
 }
@@ -42,7 +42,7 @@ int render(long z, double x, double y, uint32_t size, const std::string& style, 
 
     HeadlessFrontend frontend({ size, size }, 1.0);
     Map map(frontend, MapObserver::nullObserver(),
-            MapOptions().withMapMode(MapMode::Static).withSize(frontend.getSize()).withPixelRatio(1.0),
+            MapOptions().withMapMode(MapMode::Tile).withSize(frontend.getSize()).withPixelRatio(1.0),
             ResourceOptions());
 
 
@@ -57,14 +57,11 @@ int render(long z, double x, double y, uint32_t size, const std::string& style, 
     map.jumpTo(CameraOptions()
                    .withCenter(LatLng { y, x })
                    .withZoom(z));
-    std::cout << "after jumpto" << std::endl;
-    map.setDebug(mbgl::MapDebugOptions::TileBorders | mbgl::MapDebugOptions::ParseStatus);
+    // map.setDebug(mbgl::MapDebugOptions::TileBorders | mbgl::MapDebugOptions::ParseStatus);
 
     try {
         std::ofstream out(output, std::ios::binary);
-        std::cout << "---app before render" << std::endl;
         auto rslt = frontend.render(map);
-        std::cout << "---app end render" << std::endl;
         out << encodePNG(rslt.image);
         out.close();
     } catch(std::exception& e) {
