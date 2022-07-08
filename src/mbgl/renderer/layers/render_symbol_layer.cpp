@@ -210,7 +210,6 @@ void drawText(const DrawFn& draw,
              (part == SymbolSDFPart::Halo) ? "halo" : "fill");
     };
 
-    printf("icon in text: %d, hasfill: %d, has halo: %d\n", bucket.iconsInText, values.hasFill, values.hasHalo);
     if (bucket.iconsInText) {
         const ZoomEvaluatedSize partiallyEvaluatedTextSize =
             bucket.textSizeBinder->evaluateForZoom(parameters.state.getZoom());
@@ -346,7 +345,6 @@ void RenderSymbolLayer::render(PaintParameters& parameters) {
     if (parameters.pass == RenderPass::Opaque) {
         return;
     }
-    printf("rendering symbol: %s in pass %d\n", getID().c_str(), static_cast<uint8_t>(parameters.pass));
 
     const bool sortFeaturesByKey = !impl_cast(baseImpl).layout.get<SymbolSortKey>().isUndefined();
     std::multiset<RenderableSegment> renderableSegments;
@@ -435,7 +433,6 @@ void RenderSymbolLayer::render(PaintParameters& parameters) {
         };
 
         if (bucket.hasIconData()) {
-            printf("got icon\n");
             if (sortFeaturesByKey) {
                 addRenderables(bucket.icon.segments, SymbolType::IconRGBA);
             } else {
@@ -444,7 +441,6 @@ void RenderSymbolLayer::render(PaintParameters& parameters) {
         }
 
         if (bucket.hasSdfIconData()) {
-            printf("got sdf icon\n");
             if (sortFeaturesByKey) {
                 addRenderables(bucket.sdfIcon.segments, SymbolType::IconSDF);
             } else {
@@ -453,7 +449,6 @@ void RenderSymbolLayer::render(PaintParameters& parameters) {
         }
 
         if (bucket.hasTextData()) {
-            printf("got text\n");
             if (sortFeaturesByKey) {
                 addRenderables(bucket.text.segments, SymbolType::Text);
             } else {
@@ -541,10 +536,8 @@ void RenderSymbolLayer::render(PaintParameters& parameters) {
     if (sortFeaturesByKey) {
         for (auto& renderable : renderableSegments) {
             if (renderable.type == SymbolType::Text) {
-                printf("--drawing text\n");
                 drawText(draw, renderable.tile, renderable.renderData, renderable.segment, renderable.bucketPaintProperties, parameters);
             } else {
-                printf("--drawing icon\n");
                 drawIcon(draw, renderable.tile, renderable.renderData, renderable.segment, renderable.bucketPaintProperties, parameters, renderable.type == SymbolType::IconSDF);
             }
         }

@@ -39,7 +39,6 @@ void Renderer::Impl::setObserver(RendererObserver* observer_) {
 }
 
 void Renderer::Impl::render(const RenderTree& renderTree) {
-    Log::Info(Event::General, "begin real render");
     if (renderState == RenderState::Never) {
         observer->onWillStartRenderingMap();
     }
@@ -48,7 +47,6 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
     const auto& renderTreeParameters = renderTree.getParameters();
 
     if (!staticData) {
-        Log::Info(Event::General, "empty static data");
         staticData = std::make_unique<RenderStaticData>(backend.getContext(), pixelRatio);
     }
     staticData->has3D = renderTreeParameters.has3D;
@@ -132,7 +130,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
         } else if (!backend.contextIsShared()) {
             color = renderTreeParameters.backgroundColor;
         }
-        Log::Info(Event::General, std::string("backgroud: ") + color->stringify());
+        //Log::Info(Event::General, std::string("backgroud: ") + color->stringify());
         parameters.renderPass = parameters.encoder->createRenderPass("main buffer", { parameters.backend.getDefaultRenderable(), color, 1, 0 });
     }
 
@@ -152,7 +150,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
             const RenderItem& renderItem = it->get();
             if (renderItem.hasRenderPass(parameters.pass)) {
                 const auto layerDebugGroup(parameters.renderPass->createDebugGroup(renderItem.getName().c_str()));
-                Log::Info(Event::General, std::string("opaque: ") + renderItem.getName());
+                //Log::Info(Event::General, std::string("opaque: ") + renderItem.getName());
                 renderItem.render(parameters);
             }
         }
@@ -170,7 +168,7 @@ void Renderer::Impl::render(const RenderTree& renderTree) {
             const RenderItem& renderItem = it->get();
             if (renderItem.hasRenderPass(parameters.pass)) {
                 const auto layerDebugGroup(parameters.renderPass->createDebugGroup(renderItem.getName().c_str()));
-                Log::Info(Event::General, std::string("translucent: ") + renderItem.getName());
+                //Log::Info(Event::General, std::string("translucent: ") + renderItem.getName());
                 renderItem.render(parameters);
             }
         }

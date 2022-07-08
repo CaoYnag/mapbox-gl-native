@@ -56,7 +56,6 @@ public:
             // narrowing the scope to release the Object before we detach the thread
             {
                 util::RunLoop loop_(util::RunLoop::Type::New);
-                printf("a runloop %lx created in thread %s\n", (long)&loop_, name.c_str());
                 loop = &loop_;
                 EstablishedActor<Object> establishedActor(loop_, object, std::move(capturedArgs));
 

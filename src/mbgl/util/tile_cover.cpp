@@ -167,8 +167,6 @@ std::vector<OverscaledTileID> tileCover(const TransformState& state, uint8_t z, 
     const uint8_t maxZoom = z;
     const uint8_t overscaledZoom = overscaledZ.value_or(z);
     const bool flippedY = state.getViewportMode() == ViewportMode::FlippedY;
-    printf("--->in tile cover. numTiles: %.1f, %.2f, iz: %d, az: %d, oz: %d\n",
-        numTiles, worldSize, minZoom, maxZoom, overscaledZoom);
 
     auto centerPoint =
         TileCoordinate::fromScreenCoordinate(state, z, {state.getSize().width / 2.0, state.getSize().height / 2.0}).p;
@@ -266,7 +264,6 @@ std::vector<OverscaledTileID> tileCover(const TransformState& state, uint8_t z, 
 
     for (const auto& tile : result) {
         ids.push_back(tile.id);
-        printf("--->added tile (%d, %d, %d)\n", tile.id.canonical.z, tile.id.canonical.y, tile.id.canonical.x);
     }
 
     return ids;

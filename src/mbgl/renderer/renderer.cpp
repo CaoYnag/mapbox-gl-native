@@ -27,14 +27,10 @@ void Renderer::setObserver(RendererObserver* observer) {
 
 void Renderer::render(const std::shared_ptr<UpdateParameters>& updateParameters) {
     assert(updateParameters);
-    printf("begin renderer::render\n");
     if (auto renderTree = impl->orchestrator.createRenderTree(updateParameters)) {
-        printf("begin prepare\n");
         renderTree->prepare();
-        printf("begin call impl render\n");
         impl->render(*renderTree);
     }
-    printf("end renderer::render\n");
 }
 
 std::vector<Feature> Renderer::queryRenderedFeatures(const ScreenLineString& geometry, const RenderedQueryOptions& options) const {

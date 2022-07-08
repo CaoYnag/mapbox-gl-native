@@ -68,7 +68,6 @@ void Map::Impl::onUpdate() {
                                bool(stillImageRequest),
                                crossSourceCollisions};
 
-    printf("in map impl update\n");
     rendererFrontend.update(std::make_shared<UpdateParameters>(std::move(params)));
 }
 

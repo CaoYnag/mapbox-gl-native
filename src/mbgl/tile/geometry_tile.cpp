@@ -160,7 +160,6 @@ GeometryTile::GeometryTile(const OverscaledTileID& id_,
       imageManager(parameters.imageManager),
       mode(parameters.mode),
       showCollisionBoxes(parameters.debugOptions & MapDebugOptions::Collision) {
-        printf("geomtry tile(%d, %d, %d) created\n", id_.canonical.z, id_.canonical.x, id_.canonical.y);
 }
 
 GeometryTile::~GeometryTile() {

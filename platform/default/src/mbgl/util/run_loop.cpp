@@ -100,7 +100,6 @@ RunLoop::RunLoop(Type type) : impl(std::make_unique<Impl>()) {
 
     Scheduler::SetCurrent(this);
     impl->async = std::make_unique<AsyncTask>(std::bind(&RunLoop::process, this));
-    printf("a run loop created: %lx, current: %lx\n", (long)this, (long)Scheduler::GetCurrent());
 }
 
 RunLoop::~RunLoop() {
@@ -125,7 +124,6 @@ RunLoop::~RunLoop() {
         assert(false && "Failed to close loop.");
     }
     delete impl->loop;
-    printf("a run loop destroyed: %lx, current: %lx\n", (long)this, (long)Scheduler::GetCurrent());
 }
 
 LOOP_HANDLE RunLoop::getLoopHandle() {

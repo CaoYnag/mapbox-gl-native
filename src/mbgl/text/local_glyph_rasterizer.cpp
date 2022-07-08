@@ -93,15 +93,16 @@ public:
                     //printf("failed render[0x%x] with font[%s]: 0x%x - %s\n", id, font.c_str(), err, FT_Error_String(err));
                     continue;
                 }
-                printf("success render[0x%x] with font[%s]\n", id, font.c_str());
 
                 auto* glyph = face->glyph;
                 uint32_t wid = glyph->bitmap.width;
                 uint32_t hgt = glyph->bitmap.rows;
                 Glyph local{id, AlphaImage({wid, hgt}, glyph->bitmap.buffer, static_cast<unsigned long>(wid) * hgt),
                 {
-                    wid - 6, hgt - 6,
-                    0, 0,
+                    /*wid - 6, hgt - 6,
+                    0, 0,*/
+                    static_cast<uint32_t>(glyph->metrics.width), static_cast<uint32_t>(glyph->metrics.height),
+                    static_cast<int32_t>(glyph->metrics.horiBearingX >> 6), static_cast<int32_t>(glyph->metrics.horiBearingY >> 6),
                     static_cast<uint32_t>(glyph->metrics.horiAdvance >> 6)
                 }};
                 //local.bitmap = util::transformRasterToSDF(local.bitmap, 8, .25); // origin bak

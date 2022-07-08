@@ -19,6 +19,11 @@
 #include <filesystem>
 #include <optional>
 #include <chrono>
+#include <tuple>
+using namespace mbgl;
+using lrc_t = std::tuple<long, long, long>;
+
+const int size = 512;
 
 std::string read_file(const std::string& path)
 {
@@ -32,20 +37,36 @@ std::string read_file(const std::string& path)
         n = fread(buff, 1, batch, fp);
         ret += std::string(buff, n);
     }
-    
+
     fclose(fp);
     return ret;
 }
 
-int render(long z, long x, long y, uint32_t size, const std::string& style, const std::string& output)
+long render(HeadlessFrontend& front, Map& map, const lrc_t& lrc, const std::string& output){
+    long l = std::get<0>(lrc);
+    long r = std::get<1>(lrc);
+    long c = std::get<2>(lrc);
+    auto ll = Projection::unproject({c + .5, r + .5}, pow(2, l) / util::tileSize);
+    auto s = std::chrono::high_resolution_clock::now();
+    map.jumpTo(CameraOptions()
+                   .withCenter(ll)
+                   .withZoom(l));
+    try {
+        std::ofstream out(output, std::ios::binary);
+        auto rslt = front.render(map);
+        auto e = std::chrono::high_resolution_clock::now();
+        out << encodePNG(rslt.image);
+        out.close();
+        return std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count();
+    } catch(std::exception& e) {
+        std::cout << "Error: " << e.what() << std::endl;
+       return 1;
+    }
+}
+
+int render_main(const std::vector<lrc_t>& lrcs, const std::string& style, const std::string& output)
 {
-    using namespace mbgl;
-
     util::RunLoop loop;
-
-    auto ll = Projection::unproject({x + .5, y + .5}, pow(2, z) / util::tileSize);
-    printf("got pos(%.2f, %.2f) for tile(%ld, %ld, %ld)\n", ll.longitude(), ll.latitude(), z, y, x);
-
     HeadlessFrontend frontend({ size, size }, 1.0);
     Map map(frontend, MapObserver::nullObserver(),
             MapOptions().withMapMode(MapMode::Tile).withSize(frontend.getSize()).withPixelRatio(1.0),
@@ -53,33 +74,23 @@ int render(long z, long x, long y, uint32_t size, const std::string& style, cons
 
 
     map.getStyle().loadJSON(read_file(style));
-    std::cout << "after load style" << std::endl;
+    map.setDebug(mbgl::MapDebugOptions::TileBorders | mbgl::MapDebugOptions::ParseStatus);
     /*{
         // remove all exists source
         map.getStyle().removeSources();
         const char* SOURCE_NAME = "source";
         auto source = std::make_unique<mbgl::style::VectorSource>(SOURCE_NAME);
     }*/
-    auto start = std::chrono::high_resolution_clock::now();
-    map.jumpTo(CameraOptions()
-                   .withCenter(ll)
-                   .withZoom(z));
-    std::cout << "after jumpto" << std::endl;
-    map.setDebug(mbgl::MapDebugOptions::TileBorders | mbgl::MapDebugOptions::ParseStatus);
-
-    try {
-        std::ofstream out(output, std::ios::binary);
-        std::cout << "---app before render" << std::endl;
-        auto rslt = frontend.render(map);
-        std::cout << "---app end render" << std::endl;
-        out << encodePNG(rslt.image);
-        out.close();
-        std::chrono::duration<double> diff = std::chrono::high_resolution_clock::now() - start;
-        std::cout << "render cost " << std::chrono::duration_cast<std::chrono::milliseconds>(diff).count() << "ms." << std::endl;
-    } catch(std::exception& e) {
-        std::cout << "Error: " << e.what() << std::endl;
-       return 1;
+    double total = .0;
+    for(const auto& lrc : lrcs){
+        char buff[256];
+        sprintf(buff, "%s_%02ld_%ld_%ld.png", output.c_str(), std::get<0>(lrc), std::get<1>(lrc), std::get<2>(lrc));
+        auto c = render(frontend, map, lrc, buff);
+        printf("render tile(%ld, %ld, %ld) cost %ldms\n", std::get<0>(lrc), std::get<1>(lrc), std::get<2>(lrc), c);
+        total += c;
     }
+    if(lrcs.size())
+        printf("avg cost: %.2lf\n", total / lrcs.size());
     return 0;
 }
 
@@ -88,12 +99,11 @@ int main(int argc, char *argv[]) {
     args::HelpFlag helpFlag(argumentParser, "help", "Display this help menu", {"help"});
 
     args::ValueFlag<std::string> styleValue(argumentParser, "file", "Map stylesheet", {'s', "style"});
-    args::ValueFlag<std::string> outputValue(argumentParser, "file", "Output file name", {'o', "output"});
-    args::ValueFlag<std::string> sourceValue(argumentParser, "file", "tile json file", {'j', "json"});
+    args::ValueFlag<std::string> outputValue(argumentParser, "file", "Output file name/fmt", {'o', "output"});
 
-    args::ValueFlag<long> zValue(argumentParser, "n", "Zoom level", {'z', "zoom"});
-    args::ValueFlag<long> xValue(argumentParser, "n", "tile column", {'x', "column"});
-    args::ValueFlag<long> yValue(argumentParser, "n", "tile row", {'y', "row"});
+    args::ValueFlag<std::string> tileValue(argumentParser, "n", "Tile LRC", {'t', "tile"});
+    args::ValueFlag<double> lonValue(argumentParser, "degree", "longitude", {'x', "lon"});
+    args::ValueFlag<double> latValue(argumentParser, "degree", "latitude", {'y', "lat"});
     args::ValueFlag<uint32_t> sizeValue(argumentParser, "pixels", "Image Size", {'S', "size"});
 
     try {
@@ -111,13 +121,30 @@ int main(int argc, char *argv[]) {
         exit(2);
     }
 
-    const long y = yValue ? args::get(yValue) : 0;
-    const long x = xValue ? args::get(xValue) : 0;
-    const long z = zValue ? args::get(zValue) : 0;
-    const uint32_t size = sizeValue ? args::get(sizeValue) : 512;
+    std::vector<lrc_t> lrcs;
+    if(tileValue) {
+        const std::string tile = args::get(tileValue);
+        long l, r, c;
+        sscanf(tile.c_str(), "%ld,%ld,%ld", &l, &r, &c);
+        printf("adding tile(%ld, %ld, %ld)\n", l, r, c);
+        lrcs.emplace_back(l, r, c);
+    } else if(lonValue && latValue) {
+        // add tiles contains(lat, lon) from zoom_range(0, max)
+        const long MAX_ZOOM = 17;
+        const double lat = args::get(latValue);
+        const double lon = args::get(lonValue);
+        for(long z = 0; z < MAX_ZOOM; ++z){
+            const double scale = std::pow(2.0, z);
+            auto p = Projection::project({lat, lon}, scale) / util::tileSize;
+            lrcs.emplace_back(z, p.y, p.x);
+        }
+    } else{
+        std::cerr << "neither tile or (lat, lon) were specified, render(0, 0, 0) for default. "<< std::endl;
+        lrcs.emplace_back(0, 0, 0);
+    }
+
     const std::string output = outputValue ? args::get(outputValue) : "out.png";
     std::string style = styleValue ? args::get(styleValue) : "style.json";
-    std::string tilejson = sourceValue ? args::get(sourceValue) : "tile.json";
 
-    return render(z, x, y, size, style, output);
+    return render_main(lrcs, style, output);
 }
