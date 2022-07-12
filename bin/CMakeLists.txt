@@ -42,6 +42,27 @@ target_link_libraries(
     PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
 )
 
+add_library(
+    rasterizer STATIC
+    ${PROJECT_SOURCE_DIR}/bin/rasterizer.cpp
+)
+
+target_link_libraries(
+    rasterizer
+    PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
+)
+
+add_executable(
+    razer
+    ${PROJECT_SOURCE_DIR}/bin/razer.cpp
+)
+
+target_link_libraries(
+    razer
+    PRIVATE mbgl-compiler-options mbgl-core rasterizer
+)
+
+
 add_executable(
     translate
     ${PROJECT_SOURCE_DIR}/bin/translate.cpp
@@ -66,7 +87,6 @@ target_link_libraries(
     unpack_glyph_pbf
     PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
 )
-
 install(TARGETS mbgl-offline mbgl-render RUNTIME DESTINATION bin)
 
 # FIXME: CI must have a valid token
