@@ -43,23 +43,24 @@ target_link_libraries(
 )
 
 add_library(
-    rasterizer STATIC
-    ${PROJECT_SOURCE_DIR}/bin/rasterizer.cpp
+    razer STATIC
+    ${PROJECT_SOURCE_DIR}/bin/razer.cpp
+    ${PROJECT_SOURCE_DIR}/bin/razer_impl.cpp
 )
 
 target_link_libraries(
-    rasterizer
+    razer
     PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
 )
 
 add_executable(
-    razer
-    ${PROJECT_SOURCE_DIR}/bin/razer.cpp
+    razer_main
+    ${PROJECT_SOURCE_DIR}/bin/razer_main.cpp
 )
 
 target_link_libraries(
-    razer
-    PRIVATE mbgl-compiler-options mbgl-core rasterizer
+    razer_main
+    PRIVATE mbgl-compiler-options mbgl-core razer
 )
 
 

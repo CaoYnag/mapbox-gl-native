@@ -125,7 +125,7 @@ class Shaping {
 
 //! ONLY FOR DEBUG
 inline void DebugShaping(const Shaping& shp){
-    printf("======>Shaping rct[%.2f, %.2f, %.2f, %.2f] lineNum: %ld\n", shp.top, shp.left, shp.bottom, shp.right, shp.positionedLines.size());
+    printf("======>Shaping rct[%.2f, %.2f, %.2f, %.2f] lineNum: %zu\n", shp.top, shp.left, shp.bottom, shp.right, shp.positionedLines.size());
 }
 
 enum class WritingModeType : uint8_t {
