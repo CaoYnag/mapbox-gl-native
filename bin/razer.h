@@ -8,16 +8,18 @@ struct image32_t
 {
     const static int CHANNELS = 4;
     uint32_t width, height;
-    std::shared_ptr<uint8_t[]> data;
+    size_t size;
+    std::unique_ptr<uint8_t[]> data;
+
+    image32_t(uint32_t w, uint32_t h);
 };
 
-class RazerImpl;
-class Razer{
+class Razer {
 public:
-    Razer(const std::string& style_path);
-    ~Razer() = default;
+    virtual ~Razer() = default;
+    virtual std::shared_ptr<image32_t> render_tile(long l, long r, long c) = 0;
+    virtual std::string render_png(long l, long r, long c) = 0;
 
-    std::shared_ptr<image32_t> render_tile(long l, long r, long c);
-private:
-    std::unique_ptr<RazerImpl> impl;
+    static std::shared_ptr<Razer> __attribute__((visibility("default"))) GetRazer(const std::string& style_path);
 };
+

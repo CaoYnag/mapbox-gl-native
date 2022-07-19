@@ -43,14 +43,13 @@ target_link_libraries(
 )
 
 add_library(
-    razer STATIC
+    razer SHARED
     ${PROJECT_SOURCE_DIR}/bin/razer.cpp
-    ${PROJECT_SOURCE_DIR}/bin/razer_impl.cpp
 )
 
 target_link_libraries(
     razer
-    PRIVATE Mapbox::Base::Extras::args mbgl-compiler-options mbgl-core
+    PRIVATE mbgl-core
 )
 
 add_executable(
@@ -60,7 +59,7 @@ add_executable(
 
 target_link_libraries(
     razer_main
-    PRIVATE mbgl-compiler-options mbgl-core razer
+    PUBLIC razer
 )
 
 
